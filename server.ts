@@ -6,11 +6,10 @@ const PORT = process.env.PORT || 4000
 
 app.use(express.json())
 
-// Fonction pour créer la table si elle n'existe pas
 async function initDatabase() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
+      id integer primary key generated always as identity,
       name VARCHAR(255) NOT NULL,
       password VARCHAR(255) NOT NULL,
       email VARCHAR(255) NOT NULL
@@ -19,7 +18,6 @@ async function initDatabase() {
   console.log('✅ Table "users" prête.')
 }
 
-// Fonction pour insérer des utilisateurs de seed
 async function seedDatabase() {
   await pool.query(`
     INSERT INTO users (name, password, email)
@@ -31,7 +29,6 @@ async function seedDatabase() {
   console.log('✅ Seed users insérés.')
 }
 
-// Initialisation complète
 async function init() {
   try {
     await initDatabase()
