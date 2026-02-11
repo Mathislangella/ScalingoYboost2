@@ -24,16 +24,6 @@ async function initDatabase() {
 app.get("/", async (_req: Request, res: Response) => {
   console.log("GET /")
   await initDatabase()
-  async function initDatabase() {
-      await pool.query(`
-        CREATE TABLE IF NOT EXISTS users (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          name VARCHAR(255) NOT NULL,
-          password VARCHAR(255) NOT NULL,
-          email VARCHAR(255) NOT NULL
-        )`);
-      console.log('✅ Table "users" prête.');
-  }
   res.json({ message: "Database initialized successfully" })
 })
 
