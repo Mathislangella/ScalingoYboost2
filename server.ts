@@ -1,55 +1,79 @@
-import express from 'express'
-import { pool } from './db.js'  // ⚠️ avec .js pour NodeNext
+import express from "express"
+import { pool } from "./db.js"
 
 const app = express()
-const PORT = process.env.PORT || 4000
+const PORT = 4000
 
 app.use(express.json())
 
+// INIT DB
 async function initDatabase() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
-      id integer primary key generated always as identity,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
-      password VARCHAR(255) NOT NULL,
       email VARCHAR(255) NOT NULL
     )
   `)
-  console.log('✅ Table "users" prête.')
 }
 
-async function seedDatabase() {
-  await pool.query(`
-    INSERT INTO users (name, password, email)
-    VALUES 
-      ('Matis', 'motdepasse123', 'matis@example.com'),
-      ('Alice', 'alice123', 'alice@example.com')
-    ON CONFLICT DO NOTHING
-  `)
-  console.log('✅ Seed users insérés.')
-}
-
-async function init() {
-  try {
-    await initDatabase()
-    await seedDatabase()
-  } catch (err) {
-    console.error('Erreur init DB :', err)
-  }
-}
-
-// Routes simples
-app.get('/', (req, res) => {
-  res.json({ message: 'API running' })
+// GET /
+app.get("/", (req, res) => {
+  res.json({ message: "API running" })
 })
 
-app.get('/users', async (req, res) => {
-  const { rows } = await pool.query('SELECT * FROM users')
+// GET /users
+app.get("/users", async (req, res) => {
+  const [rows] = await pool.query("SELECT * FROM users")
   res.json(rows)
 })
 
-// Démarrage serveur
+// GET /users/:id
+app.get("/users/:id", async (req, res) => {
+  const { id } = req.params
+  const [rows]: any = await pool.query(
+    "SELECT * FROM users WHERE id = ?",
+    [id]
+  )
+  res.json(rows[0] || null)
+})
+
+// POST /users
+app.post("/users", async (req, res) => {
+  const { name, email } = req.body
+
+  const [result]: any = await pool.query(
+    "INSERT INTO users (name, email) VALUES (?, ?)",
+    [name, email]
+  )
+
+  res.json({ id: result.insertId, name, email })
+})
+
+// PUT /users/:id
+app.put("/users/:id", async (req, res) => {
+  const { id } = req.params
+  const { name, email } = req.body
+
+  await pool.query(
+    "UPDATE users SET name = ?, email = ? WHERE id = ?",
+    [name, email, id]
+  )
+
+  res.json({ id, name, email })
+})
+
+// DELETE /users/:id
+app.delete("/users/:id", async (req, res) => {
+  const { id } = req.params
+
+  await pool.query("DELETE FROM users WHERE id = ?", [id])
+
+  res.json({ success: true })
+})
+
+// START
 app.listen(PORT, async () => {
-  console.log(`🚀 Server running on port ${PORT}`)
-  await init() // ⚡ Init DB + seed au démarrage
+  await initDatabase()
+  console.log(` Server running on http://localhost:${PORT}`)
 })

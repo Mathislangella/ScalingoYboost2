@@ -15,7 +15,7 @@ async function initDatabase() {
         password VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL
       )`);
-    console.log('✅ Table "users" prête.');
+    console.log('Table "users" prête.');
 }
 
 app.use(express.json())
@@ -24,7 +24,6 @@ app.use(express.json())
 app.get('/', async (req, res) => {
     console.log("test route users")
     initDatabase();
-    // const [rows] = await pool.query("SELECT * FROM users")
     res.json({message: "Database initialized successfully"})
 })
 app.get('/users', async (req, res) => {
@@ -45,7 +44,6 @@ app.get('/users/:id', async (req, res) => {
 
     res.status(200).json(rows)
 })
-
 app.get('/users/:username', async (req, res) => {
     const { username } = req.query
 

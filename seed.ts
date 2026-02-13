@@ -9,7 +9,7 @@ async function main() {
       ('Matis', 'motdepasse123', 'matis@example.com'),
       ('Alice', 'alice123', 'alice@example.com');
     `)
-    console.log("✅ Users insérés !")
+    console.log("Users insérés !")
     process.exit(0)
   } catch (err) {
     console.error("Erreur insertion :", err)
